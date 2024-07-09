@@ -1,6 +1,6 @@
-# DAMN-Keylog
+# DMAN-Keylog
 
-DAMN-Keylog is an advanced keylogger for Windows systems, designed for educational and authorized security testing purposes. This tool captures keystrokes and sends them to a remote server for analysis.
+DMAN-Keylog is an advanced keylogger for Windows systems, designed for educational and authorized security testing purposes. This tool captures keystrokes and sends them to a remote server for analysis.
 
 ## Features
 
