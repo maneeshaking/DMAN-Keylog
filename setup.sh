@@ -8,7 +8,8 @@ display_banner() {
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
   echo -e "\e[93m"
-  }
+ 
+}
 
 # Default values
 LHOST="127.0.0.1"
