@@ -7,7 +7,7 @@ display_banner() {
   echo -e "\e[92m#                \e[91mDMAN-Keylog\e[92m                    #\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
-  
+ 
 }
 
 # Default values
