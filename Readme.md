@@ -1,6 +1,6 @@
-# DAMN-Keylog
+# DMAN-Keylog
 
-DAMN-Keylog is an advanced keylogger for Windows systems, designed for educational and authorized security testing purposes. This tool captures keystrokes and sends them to a remote server for analysis.
+DMAN-Keylog is an advanced keylogger for Windows systems, designed for educational and authorized security testing purposes. This tool captures keystrokes and sends them to a remote server for analysis.
 
 ## Features
 
@@ -53,12 +53,11 @@ Example
 	generate
 
 ./setup.sh
-# Select option 2 to start the server
+Select option 2 to start the server
 
 Exit the script:
-
 ./setup.sh
-# Select option 3 to exit
+Select option 3 to exit
 
 **Legal Disclaimer**
 This tool is intended for educational purposes only and should only be used in environments where you have explicit permission to do so. Misuse of this tool may lead to legal consequences. The author is not responsible for any misuse of this tool.
